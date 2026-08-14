@@ -8,8 +8,14 @@ tokens:
 vllm:
   reasoningParser: "qwen3"
 hardware:
-  gpuProduct: "g6e.2xlarge"
+  # Seoul (ap-northeast-2) deployment uses g6e.12xlarge (4x L40S) machine pool.
+  # Must match the actual node instance-type label or the vLLM pod nodeSelector
+  # will never match and the pod stays Pending forever.
+  gpuProduct: "g6e.12xlarge"
   instanceTypeLabel: "node.kubernetes.io/instance-type"
+  # Single-GPU serving (1 of 4 GPUs on the node) — safe default, no tensor
+  # parallelism. Bump to 4 + add --tensor-parallel-size=4 to vllm.extraArgs
+  # later if full-node utilization / higher concurrency is desired.
   gpuCount: 1
   cpu:
     request: "2"
